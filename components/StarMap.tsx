@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Network } from "@vis-network/standalone"
+import { Network } from "vis-network/standalone"
 import type { Graph } from "@/lib/types"
 
 const EDGE_COLORS: Record<string, string> = {

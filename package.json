@@ -9,11 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "@supabase/supabase-js": "^2.45.0",
-    "@vis-network/standalone": "^9.1.9"
+    "vis-network": "^9.1.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
