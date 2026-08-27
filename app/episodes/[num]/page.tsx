@@ -1,0 +1,166 @@
+import Link from "next/link"
+import { notFound } from "next/navigation"
+import PitForm from "@/components/PitForm"
+import { getEpisodeByNum, getRelated, getPits } from "@/lib/api"
+import type { EdgeKind } from "@/lib/types"
+
+export const dynamic = "force-dynamic"
+export const dynamicParams = true
+
+const KIND_CN: Record<EdgeKind, string> = {
+  series: "同系列",
+  ref: "互相引用",
+  tag: "共享标签",
+  semantic: "语义相似",
+  concept: "共享概念",
+}
+
+export default async function EpisodePage({
+  params,
+}: {
+  params: Promise<{ num: string }>
+}) {
+  const { num: numStr } = await params
+  const num = Number(numStr)
+  if (Number.isNaN(num)) notFound()
+
+  const ep = await getEpisodeByNum(num).catch(() => null)
+  if (!ep) notFound()
+
+  const [related, pits] = await Promise.all([
+    getRelated(ep.id, 12).catch(() => []),
+    getPits({ episodeId: ep.id }).catch(() => []),
+  ])
+
+  const fmtMin = (s: number | null) => (s ? (s / 60).toFixed(0) : "—")
+  const fmtWords = (n: number | null) => (n ? (n / 10000).toFixed(1) : "—")
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto max-w-4xl px-6 py-8">
+        <nav className="mb-6 text-xs text-slate-500">
+          <Link href="/" className="hover:text-sky-400">
+            ← 首页
+          </Link>
+          <span className="mx-2">/</span>
+          <Link href="/map" className="hover:text-sky-400">
+            星图
+          </Link>
+        </nav>
+
+        <header className="mb-6">
+          <div className="flex items-baseline gap-3">
+            {ep.num && <span className="text-2xl font-bold text-slate-500">{ep.num}</span>}
+            <h1 className="text-2xl font-bold">{ep.title}</h1>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+            {ep.duration_sec && <span>{fmtMin(ep.duration_sec)} 分钟</span>}
+            {ep.word_count && <span>{fmtWords(ep.word_count)} 万字</span>}
+            {ep.publish_date && <span>{ep.publish_date}</span>}
+            {ep.series && (
+              <Link href={`/map?focus=${ep.num ?? ""}`} className="text-sky-400 hover:underline">
+                系列：{ep.series.name}
+              </Link>
+            )}
+          </div>
+          {ep.tags && ep.tags.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {ep.tags.map((t) => (
+                <Link
+                  key={t}
+                  href={`/map?focus=${ep.num ?? ""}`}
+                  className="rounded bg-slate-800 px-2 py-0.5 text-xs text-sky-300 hover:bg-slate-700"
+                >
+                  {t}
+                </Link>
+              ))}
+            </div>
+          )}
+          {ep.summary && (
+            <p className="mt-3 text-sm leading-relaxed text-slate-300">{ep.summary}</p>
+          )}
+        </header>
+
+        {ep.audio_url && (
+          <div className="mb-6">
+            <audio controls src={ep.audio_url} className="w-full" preload="none" />
+          </div>
+        )}
+
+        {ep.platforms && Object.keys(ep.platforms).length > 0 && (
+          <div className="mb-6 flex gap-3 text-sm">
+            {Object.entries(ep.platforms).map(([k, v]) =>
+              v ? (
+                <a
+                  key={k}
+                  href={v}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sky-400 hover:underline"
+                >
+                  {k === "ximalaya" ? "喜马拉雅" : k === "xiaoyuzhou" ? "小宇宙" : "Apple"} ↗
+                </a>
+              ) : null
+            )}
+          </div>
+        )}
+
+        <section className="mb-8">
+          <h2 className="mb-3 text-lg font-semibold">相关节目</h2>
+          {related.length === 0 ? (
+            <p className="text-sm text-slate-500">暂无关联（数据导入后自动出现）。</p>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {related.map((r, i) => (
+                <Link
+                  key={i}
+                  href={`/episodes/${r.episode.num ?? r.episode.id}`}
+                  className="rounded-lg bg-slate-900 p-3 transition hover:bg-slate-800"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">
+                      {r.episode.num ? `${r.episode.num} · ` : ""}
+                      {r.episode.title}
+                    </span>
+                    <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-300">
+                      {KIND_CN[r.kind]}
+                    </span>
+                  </div>
+                  {r.evidence && (
+                    <div className="mt-1 text-xs text-slate-500">因 {r.evidence}</div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-lg font-semibold">
+            坑（{pits.length}）
+          </h2>
+          <PitForm episodeId={ep.id} />
+          {pits.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {pits.map((p) => (
+                <li key={p.id} className="rounded-lg bg-slate-900 p-3 text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <span>{p.content}</span>
+                    <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-400">
+                      {p.status} · {p.echo_count} 共鸣
+                    </span>
+                  </div>
+                  {p.ts_sec != null && (
+                    <div className="mt-1 text-xs text-slate-500">
+                      时间戳 {Math.floor(p.ts_sec / 60)}:{String(p.ts_sec % 60).padStart(2, "0")}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </main>
+  )
+}

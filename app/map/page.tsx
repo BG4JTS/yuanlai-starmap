@@ -1,0 +1,39 @@
+import StarMap from "@/components/StarMap"
+import { getGraph } from "@/lib/api"
+
+export const dynamic = "force-dynamic"
+
+export default async function MapPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ focus?: string }>
+}) {
+  const params = await searchParams
+  const focusNum = params.focus ? Number(params.focus) : undefined
+
+  let graph = { nodes: [], edges: [] }
+  let err: string | null = null
+  try {
+    graph = await getGraph(focusNum)
+  } catch (e) {
+    err = e instanceof Error ? e.message : String(e)
+  }
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto max-w-7xl px-4 py-6">
+        {err ? (
+          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-6 text-sm text-amber-300">
+            星图数据未就绪（{err}）。请先执行 <code>supabase/schema.sql</code> 并导入数据。
+          </div>
+        ) : graph.nodes.length === 0 ? (
+          <div className="rounded-lg p-6 text-sm text-slate-400">
+            暂无节目数据。
+          </div>
+        ) : (
+          <StarMap graph={graph} />
+        )}
+      </div>
+    </main>
+  )
+}
