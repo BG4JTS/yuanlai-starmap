@@ -181,14 +181,24 @@ export async function createPit(input: {
 
 export async function echoPit(pitId: number): Promise<void> {
   // 幂等由应用层（本地标记）控制；简单实现为 +1
-  const { error } = await supabase.rpc("echo_pit", { pid: pitId })
-  if (error) {
-    // 兜底：直接 update（可能需要 RLS 允许匿名 update）
-    const { error: uerr } = await supabase
-      .from("pits")
-      .update({ echo_count: supabase.rpc ? 0 : 0 })
-      .eq("id", pitId)
-    if (uerr) throw uerr
+  try {
+    const { error } = await supabase.rpc("echo_pit", { pid: pitId })
+    if (error) {
+      // 兜底：直接 update echo_count = echo_count + 1
+      const { data: pit } = await supabase
+        .from("pits")
+        .select("echo_count")
+        .eq("id", pitId)
+        .single()
+      if (pit) {
+        await supabase
+          .from("pits")
+          .update({ echo_count: (pit.echo_count ?? 0) + 1 })
+          .eq("id", pitId)
+      }
+    }
+  } catch {
+    // 静默失败（匿名场景下可接受）
   }
 }
 

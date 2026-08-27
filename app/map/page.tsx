@@ -1,5 +1,6 @@
 import StarMap from "@/components/StarMap"
 import { getGraph } from "@/lib/api"
+import type { Graph } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
@@ -11,7 +12,7 @@ export default async function MapPage({
   const params = await searchParams
   const focusNum = params.focus ? Number(params.focus) : undefined
 
-  let graph = { nodes: [], edges: [] }
+  let graph: Graph = { nodes: [], edges: [] }
   let err: string | null = null
   try {
     graph = await getGraph(focusNum)

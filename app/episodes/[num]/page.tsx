@@ -110,27 +110,32 @@ export default async function EpisodePage({
           {related.length === 0 ? (
             <p className="text-sm text-slate-500">暂无关联（数据导入后自动出现）。</p>
           ) : (
-            <div className="grid gap-2 sm:grid-cols-2">
-              {related.map((r, i) => (
+<div className="grid gap-2 sm:grid-cols-2">
+              {related.map((r: any, i: number) => {
+                const ep = r.episode as { num?: number | null; id: number; title: string }
+                const k = r.kind as EdgeKind
+                const ev = r.evidence as string | null
+                return (
                 <Link
                   key={i}
-                  href={`/episodes/${r.episode.num ?? r.episode.id}`}
+                  href={`/episodes/${ep.num ?? ep.id}`}
                   className="rounded-lg bg-slate-900 p-3 transition hover:bg-slate-800"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium">
-                      {r.episode.num ? `${r.episode.num} · ` : ""}
-                      {r.episode.title}
+                      {ep.num ? `${ep.num} · ` : ""}
+                      {ep.title}
                     </span>
                     <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-300">
-                      {KIND_CN[r.kind]}
+                      {KIND_CN[k]}
                     </span>
                   </div>
-                  {r.evidence && (
-                    <div className="mt-1 text-xs text-slate-500">因 {r.evidence}</div>
+                  {ev && (
+                    <div className="mt-1 text-xs text-slate-500">因 {ev}</div>
                   )}
                 </Link>
-              ))}
+                )
+              })}
             </div>
           )}
         </section>

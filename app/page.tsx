@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { getEpisodes, getStats } from "@/lib/api"
+import type { Episode } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
 export default async function Home() {
   let stats = null
-  let episodes = []
+  let episodes: Episode[] = []
   let err = null
   try {
     stats = await getStats()

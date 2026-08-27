@@ -31,6 +31,7 @@ export default function StarMap({ graph }: { graph: Graph }) {
 
     import("vis-network/standalone")
       .then(({ Network, DataSet }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const nodes = new DataSet(
           graph.nodes.map((n) => ({
             id: n.id,
@@ -43,9 +44,10 @@ export default function StarMap({ graph }: { graph: Graph }) {
               (n.tags?.length ? `标签: ${n.tags.slice(0, 4).join("、")}<br>` : "") +
               (n.summary ? `<i>${n.summary.slice(0, 150)}</i>` : ""),
           }))
-        )
-        const edges = new DataSet(
-          graph.edges.map((e) => ({
+        ) as any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const edges = new (DataSet as any)(
+          graph.edges.map((e: any) => ({
             from: e.from,
             to: e.to,
             color: EDGE_COLORS[e.kind] ?? "#888",
@@ -55,7 +57,7 @@ export default function StarMap({ graph }: { graph: Graph }) {
               e.weight ? ` (${e.weight.toFixed(2)})` : ""
             }`,
           }))
-        )
+        ) as any
 
         network = new Network(
           container,
@@ -69,7 +71,7 @@ export default function StarMap({ graph }: { graph: Graph }) {
             nodes: { font: { size: 13, face: "Microsoft YaHei" }, borderWidth: 1, shadow: true },
             edges: {
               font: { size: 9, face: "Microsoft YaHei", align: "middle" },
-              smooth: { type: "continuous" },
+              smooth: { enabled: true, type: "continuous", roundness: 0.5 } as any,
             },
           }
         )
