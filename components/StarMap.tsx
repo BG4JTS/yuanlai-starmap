@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Network } from "vis-network/standalone"
 import type { Graph } from "@/lib/types"
 
 const EDGE_COLORS: Record<string, string> = {
@@ -26,54 +25,72 @@ export default function StarMap({ graph }: { graph: Graph }) {
     const container = containerRef.current
     if (!container) return
 
-    const nodes = graph.nodes.map((n) => ({
-      id: n.id,
-      label: `${n.num ?? "?"} ${n.title.slice(0, 12)}`,
-      value: n.size,
-      size: n.size,
-      title:
-        `<b>${n.num ?? "?"} ${n.title}</b><br>` +
-        (n.duration_sec ? `${(n.duration_sec / 60).toFixed(0)} 分钟<br>` : "") +
-        (n.tags?.length ? `标签: ${n.tags.slice(0, 4).join("、")}<br>` : "") +
-        (n.summary ? `<i>${n.summary.slice(0, 150)}</i>` : ""),
-    }))
-    const edges = graph.edges.map((e) => ({
-      from: e.from,
-      to: e.to,
-      color: EDGE_COLORS[e.kind] ?? "#888",
-      width: 1 + (e.weight ?? 0.5) * 4,
-      label: EDGE_CN[e.kind] ?? e.kind,
-      title: `${EDGE_CN[e.kind] ?? e.kind}${e.evidence ? `: ${e.evidence}` : ""}${
-        e.weight ? ` (${e.weight.toFixed(2)})` : ""
-      }`,
-    }))
+    // 动态 import：避免 SSR/构建时加载 vis-network（引用 window/document）
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let network: any = null
 
-    const network = new Network(
-      container,
-      { nodes, edges },
-      {
-        physics: {
-          barnesHut: { gravitationalConstant: -28000, centralGravity: 0.25 },
-          minVelocity: 0.7,
-        },
-        interaction: { hover: true, tooltipDelay: 120, navigationButtons: true },
-        nodes: { font: { size: 13, face: "Microsoft YaHei" }, borderWidth: 1, shadow: true },
-        edges: {
-          font: { size: 9, face: "Microsoft YaHei", align: "middle" },
-          smooth: { type: "continuous" },
-        },
+    import("vis-network/standalone")
+      .then(({ Network, DataSet }) => {
+        const nodes = new DataSet(
+          graph.nodes.map((n) => ({
+            id: n.id,
+            label: `${n.num ?? "?"} ${n.title.slice(0, 12)}`,
+            value: n.size,
+            size: n.size,
+            title:
+              `<b>${n.num ?? "?"} ${n.title}</b><br>` +
+              (n.duration_sec ? `${(n.duration_sec / 60).toFixed(0)} 分钟<br>` : "") +
+              (n.tags?.length ? `标签: ${n.tags.slice(0, 4).join("、")}<br>` : "") +
+              (n.summary ? `<i>${n.summary.slice(0, 150)}</i>` : ""),
+          }))
+        )
+        const edges = new DataSet(
+          graph.edges.map((e) => ({
+            from: e.from,
+            to: e.to,
+            color: EDGE_COLORS[e.kind] ?? "#888",
+            width: 1 + (e.weight ?? 0.5) * 4,
+            label: EDGE_CN[e.kind] ?? e.kind,
+            title: `${EDGE_CN[e.kind] ?? e.kind}${e.evidence ? `: ${e.evidence}` : ""}${
+              e.weight ? ` (${e.weight.toFixed(2)})` : ""
+            }`,
+          }))
+        )
+
+        network = new Network(
+          container,
+          { nodes, edges },
+          {
+            physics: {
+              barnesHut: { gravitationalConstant: -28000, centralGravity: 0.25 },
+              minVelocity: 0.7,
+            },
+            interaction: { hover: true, tooltipDelay: 120, navigationButtons: true },
+            nodes: { font: { size: 13, face: "Microsoft YaHei" }, borderWidth: 1, shadow: true },
+            edges: {
+              font: { size: 9, face: "Microsoft YaHei", align: "middle" },
+              smooth: { type: "continuous" },
+            },
+          }
+        )
+
+        network.on("click", (params: { nodes: string[] }) => {
+          if (params.nodes.length) {
+            const id = params.nodes[0]
+            const node = graph.nodes.find((n) => n.id === id)
+            if (node?.num) window.location.href = `/episodes/${node.num}`
+          }
+        })
+      })
+      .catch((err) => console.error("vis-network 加载失败:", err))
+
+    return () => {
+      try {
+        network?.destroy()
+      } catch {
+        // noop
       }
-    )
-
-    network.on("click", (params) => {
-      if (params.nodes.length) {
-        const id = params.nodes[0]
-        const node = graph.nodes.find((n) => n.id === id)
-        if (node?.num) window.location.href = `/episodes/${node.num}`
-      }
-    })
-
-    return () => network.destroy()
+    }
   }, [graph])
 
   return (
