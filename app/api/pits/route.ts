@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { getSupabase } from "@/lib/supabase"
 
 export const runtime = "nodejs"
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "坑内容过长（≤500字）" }, { status: 400 })
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("pits")
     .insert({
       episode_id: body.episode_id,

@@ -1,5 +1,5 @@
 // 数据访问层：所有 Supabase 查询封装（服务端组件/API 使用）
-import { supabase } from "./supabase"
+import { getSupabase } from "./supabase"
 import type {
   Episode,
   Edge,
@@ -20,7 +20,7 @@ export async function getEpisodes(opts?: {
   seriesId?: number
   search?: string
 }): Promise<{ data: Episode[]; total: number }> {
-  let q = supabase
+  let q = getSupabase()
     .from("episodes")
     .select("*, series:series_id(name, description)", { count: "exact" })
     .order("num", { ascending: true })
@@ -36,7 +36,7 @@ export async function getEpisodes(opts?: {
 }
 
 export async function getEpisodeByNum(num: number): Promise<Episode | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("episodes")
     .select("*, series:series_id(name, description)")
     .eq("num", num)
@@ -46,7 +46,7 @@ export async function getEpisodeByNum(num: number): Promise<Episode | null> {
 }
 
 export async function getEpisodeById(id: number): Promise<Episode | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("episodes")
     .select("*, series:series_id(name, description)")
     .eq("id", id)
@@ -60,8 +60,8 @@ export async function getEpisodeById(id: number): Promise<Episode | null> {
 export async function getGraph(focusNum?: number, hopLimit = 2): Promise<Graph> {
   if (!focusNum) {
     const [nodes, edges] = await Promise.all([
-      supabase.from("episodes").select("id, num, title, duration_sec, tags, series_id, summary").order("num"),
-      supabase.from("edges").select("*").limit(20000),
+      getSupabase().from("episodes").select("id, num, title, duration_sec, tags, series_id, summary").order("num"),
+      getSupabase().from("edges").select("*").limit(20000),
     ])
     if (nodes.error) throw nodes.error
     if (edges.error) throw edges.error
@@ -75,7 +75,7 @@ export async function getGraph(focusNum?: number, hopLimit = 2): Promise<Graph> 
   const ids = new Set<number>([focus.id])
   let frontier = [focus.id]
   for (let h = 0; h < hopLimit; h++) {
-    const { data: edges, error } = await supabase
+    const { data: edges, error } = await getSupabase()
       .from("edges")
       .select("*")
       .or(`ep_a.in.(${[...frontier].join(",")}),ep_b.in.(${[...frontier].join(",")})`)
@@ -90,13 +90,13 @@ export async function getGraph(focusNum?: number, hopLimit = 2): Promise<Graph> 
     frontier = [...next]
   }
 
-  const { data: nodes, error: nodeErr } = await supabase
+  const { data: nodes, error: nodeErr } = await getSupabase()
     .from("episodes")
     .select("id, num, title, duration_sec, tags, series_id, summary")
     .in("id", [...ids])
   if (nodeErr) throw nodeErr
 
-  const { data: allEdges, error: edgeErr } = await supabase
+  const { data: allEdges, error: edgeErr } = await getSupabase()
     .from("edges")
     .select("*")
     .limit(20000)
@@ -134,7 +134,7 @@ function mapEdges(rows: unknown[]): GraphEdge[] {
 
 // ---------- 相关节目（复用 edges 表） ----------
 export async function getRelated(episodeId: number, limit = 12) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("edges")
     .select("*, a:ep_a(id, num, title, tags, duration_sec), b:ep_b(id, num, title, tags, duration_sec)")
     .or(`ep_a.eq.${episodeId},ep_b.eq.${episodeId}`)
@@ -157,7 +157,7 @@ export async function getRelated(episodeId: number, limit = 12) {
 
 // ---------- 坑 ----------
 export async function getPits(opts?: { status?: PitStatus; episodeId?: number; limit?: number }) {
-  let q = supabase
+  let q = getSupabase()
     .from("pits")
     .select("*, episode:episode_id(num, title), fills:fills(*)")
     .order("echo_count", { ascending: false })
@@ -174,7 +174,7 @@ export async function createPit(input: {
   content: string
   ts_sec?: number | null
 }): Promise<Pit> {
-  const { data, error } = await supabase.from("pits").insert(input).select().single()
+  const { data, error } = await getSupabase().from("pits").insert(input).select().single()
   if (error) throw error
   return data as Pit
 }
@@ -182,16 +182,16 @@ export async function createPit(input: {
 export async function echoPit(pitId: number): Promise<void> {
   // 幂等由应用层（本地标记）控制；简单实现为 +1
   try {
-    const { error } = await supabase.rpc("echo_pit", { pid: pitId })
+    const { error } = await getSupabase().rpc("echo_pit", { pid: pitId })
     if (error) {
       // 兜底：直接 update echo_count = echo_count + 1
-      const { data: pit } = await supabase
+      const { data: pit } = await getSupabase()
         .from("pits")
         .select("echo_count")
         .eq("id", pitId)
         .single()
       if (pit) {
-        await supabase
+        await getSupabase()
           .from("pits")
           .update({ echo_count: (pit.echo_count ?? 0) + 1 })
           .eq("id", pitId)
@@ -207,10 +207,10 @@ export async function createFill(input: {
   content: string
   episode_id?: number | null
 }): Promise<Fill> {
-  const { data, error } = await supabase.from("fills").insert(input).select().single()
+  const { data, error } = await getSupabase().from("fills").insert(input).select().single()
   if (error) throw error
   // 坑状态 → filled
-  await supabase
+  await getSupabase()
     .from("pits")
     .update({ status: "filled", filled_by: input.episode_id ?? null })
     .eq("id", input.pit_id)
@@ -220,10 +220,10 @@ export async function createFill(input: {
 // ---------- 全站统计 ----------
 export async function getStats(): Promise<SiteStats> {
   const [ep, edges, pits, series] = await Promise.all([
-    supabase.from("episodes").select("id, duration_sec, word_count"),
-    supabase.from("edges").select("id", { count: "exact", head: true }),
-    supabase.from("pits").select("id", { count: "exact", head: true }),
-    supabase.from("series").select("id", { count: "exact", head: true }),
+    getSupabase().from("episodes").select("id, duration_sec, word_count"),
+    getSupabase().from("edges").select("id", { count: "exact", head: true }),
+    getSupabase().from("pits").select("id", { count: "exact", head: true }),
+    getSupabase().from("series").select("id", { count: "exact", head: true }),
   ])
   const eps = (ep.data ?? []) as Pick<Episode, "duration_sec" | "word_count">[]
   const totalDur = eps.reduce((s, e) => s + (e.duration_sec ?? 0), 0)
