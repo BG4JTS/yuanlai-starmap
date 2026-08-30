@@ -1,0 +1,18 @@
+# 推理/流水线核心（Python 3.11，CUDA）
+faster-whisper>=1.0.3          # ASR 转写（CTranslate2，不依赖 torch）
+pyannote.audio>=3.1            # 说话人分离（需 HUGGINGFACE_HUB_TOKEN）
+torch==2.4.0                   # 4090 实例原生组合（勿升级，否则 torchvision 不匹配）
+torchaudio==2.4.0
+transformers==4.44.2           # 与 torch 2.4 兼容（≥2.5 要求的版本会禁用 PyTorch，导致 pyannote 失效）
+jieba>=0.42.1                  # 中文分词（风格分析）
+yt-dlp>=2024.4.9               # 下载喜马拉雅音频
+requests>=2.31
+openai>=1.30                   # DeepSeek 兼容客户端（可选）
+numpy
+pandas
+
+# 可选：TTS 数据纯净度校验
+# wespeaker>=1.3
+# scikit-learn>=1.3
+# librosa>=0.10
+# speechbrain>=1.0
