@@ -43,12 +43,15 @@ def build_episodes_rows(metas, tags_by_ep):
             except Exception:
                 pass
         t = tags_by_ep.get(key, {})
+        tid = m.get("trackId")
+        xm_page = f"https://www.ximalaya.com/sound/{tid}" if tid else None
         rows.append({
             "num": m.get("num"),
             "title": m.get("title", ""),
             "title_raw": m.get("title", ""),
             "publish_date": None,
             "audio_url": None,
+            "platforms": {"ximalaya": xm_page} if xm_page else None,
             "duration_sec": duration_sec,
             "word_count": word_count,
             "summary": t.get("summary"),
@@ -74,18 +77,38 @@ def rest(url, key, method, body=None, prefer="resolution=merge-duplicates,return
 
 
 def import_episodes(url, key, rows):
-    total = 0
-    for i in range(0, len(rows), 100):
-        batch = rows[i:i + 100]
-        r = rest(f"{url}/rest/v1/episodes", key, "POST", body=batch,
-                 prefer="resolution=merge-duplicates,return=minimal")
+    """正片 upsert（on_conflict=num）；番外（num=null）按 title PATCH 增量更新"""
+    import requests
+    from urllib.parse import quote
+    headers = {"Authorization": f"Bearer {key}", "apikey": key,
+               "Content-Type": "application/json",
+               "Prefer": "resolution=merge-duplicates,return=minimal"}
+    main_rows = [r for r in rows if r.get("num") is not None]
+    extra_rows = [r for r in rows if r.get("num") is None]
+    total, patch_fail = 0, 0
+    for i in range(0, len(main_rows), 100):
+        batch = main_rows[i:i + 100]
+        r = requests.post(f"{url}/rest/v1/episodes?on_conflict=num",
+                          headers=headers, json=batch, timeout=120)
         if r.status_code >= 400:
             print(f"  episodes 批次 {i//100+1} 失败: {r.status_code} {r.text[:180]}")
         else:
             total += len(batch)
-            print(f"  episodes 批次 {i//100+1}: +{len(batch)}")
+            print(f"  episodes 批次 {i//100+1}: upsert {len(batch)}")
         time.sleep(0.3)
-    print(f"episodes 导入完成: {total}")
+    for r0 in extra_rows:
+        t = r0.get("title", "")
+        try:
+            pr = requests.patch(f"{url}/rest/v1/episodes?title=eq.{quote(t)}",
+                                headers=headers, json={"platforms": r0.get("platforms")}, timeout=60)
+            if pr.status_code >= 400:
+                patch_fail += 1
+                print(f"  番外 PATCH 失败: {t[:20]} {pr.status_code}")
+            else:
+                total += 1
+        except Exception:
+            patch_fail += 1
+    print(f"episodes 导入完成: {total}（正片 upsert {len(main_rows)} + 番外 patch {len(extra_rows)-patch_fail}）")
     return total
 
 
