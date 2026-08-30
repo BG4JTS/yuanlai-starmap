@@ -28,7 +28,7 @@ export default async function Home() {
         <header className="mb-8">
           <h1 className="text-3xl font-bold">《原来是这样》节目星图</h1>
           <p className="mt-2 text-slate-400">
-            600+ 期科普节目的内容地图 —— 从任何一期出发，顺着关联听下去。
+            673 期科普节目的内容地图 —— 从任何一期出发，顺着关联听下去。
           </p>
           <div className="mt-4 flex gap-3">
             <Link
