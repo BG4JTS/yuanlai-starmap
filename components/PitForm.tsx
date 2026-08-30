@@ -37,13 +37,13 @@ export default function PitForm({ episodeId }: { episodeId: number }) {
   return (
     <form onSubmit={submit} className="space-y-2">
       <div>
-        <label className="text-xs text-slate-400">挖一个坑（这期提到但没展开的话题）</label>
+        <label className="text-xs text-fg-secondary">挖一个坑（这期提到但没展开的话题）</label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={2}
           placeholder="例如：12:30 提到反物质但没解释，这是个坑"
-          className="mt-1 w-full rounded-lg bg-slate-900 p-2 text-sm outline-none focus:ring-2 focus:ring-sky-500"
+          className="mt-1 w-full rounded-none bg-surface-2 p-2 text-sm outline-none focus:ring-2 focus:ring-brand"
         />
       </div>
       <div className="flex items-center gap-2">
@@ -51,12 +51,12 @@ export default function PitForm({ episodeId }: { episodeId: number }) {
           value={ts}
           onChange={(e) => setTs(e.target.value)}
           placeholder="时间戳(秒，可选)"
-          className="w-36 rounded-lg bg-slate-900 p-2 text-xs outline-none focus:ring-2 focus:ring-sky-500"
+          className="w-36 rounded-none bg-surface-2 p-2 text-xs outline-none focus:ring-2 focus:ring-brand"
         />
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="rounded-lg bg-sky-500 px-4 py-2 text-xs font-medium hover:bg-sky-400 disabled:opacity-50"
+          className="rounded-none bg-brand px-4 py-2 text-xs font-medium hover:bg-brand-hover disabled:opacity-50"
         >
           {status === "submitting" ? "提交中…" : "挖坑"}
         </button>

@@ -163,8 +163,8 @@ export default function StarMap({ graph }: { graph: Graph }) {
       key={q}
       onClick={() => setQ(q)}
       title={hint}
-      className={`rounded px-2.5 py-1 text-xs transition ${
-        quality === q ? "bg-sky-500 text-slate-950 font-semibold" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+      className={`rounded-none px-2.5 py-1 text-xs transition ${
+        quality === q ? "bg-brand text-fg font-semibold" : "bg-surface-2 text-fg hover:bg-surface-2"
       }`}
     >
       {label}
@@ -175,32 +175,32 @@ export default function StarMap({ graph }: { graph: Graph }) {
     <div className="flex h-[calc(100vh-100px)] flex-col">
       <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
         <h1 className="text-lg font-semibold">原样星图</h1>
-        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
-          <span className="text-slate-500">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-fg-secondary">
+          <span className="text-fg-secondary">
             {graph.nodes.length} 节点 ·{" "}
             {quality === "lite" ? graph.edges.filter((e) => LITE_KINDS.has(e.kind)).length : graph.edges.length} 边
-            {!ready && <span className="ml-2 text-sky-400">布局计算中…</span>}
+            {!ready && <span className="ml-2 text-brand">布局计算中…</span>}
           </span>
           <div className="flex items-center gap-1">
-            <span className="text-slate-500">渲染：</span>
+            <span className="text-fg-secondary">渲染：</span>
             {BTN("lite", "流畅", "只显示系列/挖坑/引用/嘉宾边，无阴影平滑")}
             {BTN("medium", "均衡", "全部边但隐藏边标签，关平滑与阴影")}
             {BTN("high", "精细", "全部边 + 边标签 + 平滑 + 阴影")}
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap gap-3 px-6 pb-2 text-[11px] text-slate-400">
+      <div className="flex flex-wrap gap-3 px-6 pb-2 text-[11px] text-fg-secondary">
         {Object.entries(EDGE_CN).map(([k, cn]) => (
           <span
             key={k}
             className={`flex items-center gap-1 ${quality === "lite" && !LITE_KINDS.has(k) ? "opacity-30" : ""}`}
           >
-            <span className="inline-block h-1 w-4 rounded" style={{ background: EDGE_COLORS[k] }} />
+            <span className="inline-block h-1 w-4 rounded-none" style={{ background: EDGE_COLORS[k] }} />
             {cn}
           </span>
         ))}
       </div>
-      <div ref={containerRef} className="flex-1 rounded-xl bg-white/5" />
+      <div ref={containerRef} className="flex-1 rounded-none bg-surface-2/60" />
     </div>
   )
 }

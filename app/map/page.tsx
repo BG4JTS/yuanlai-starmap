@@ -21,14 +21,14 @@ export default async function MapPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main className="min-h-screen bg-surface text-fg">
       <div className="mx-auto max-w-7xl px-4 py-6">
         {err ? (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-6 text-sm text-amber-300">
+          <div className="rounded-none border border-amber-500/40 bg-brand/10 p-6 text-sm text-brand-light">
             星图数据未就绪（{err}）。请先执行 <code>supabase/schema.sql</code> 并导入数据。
           </div>
         ) : graph.nodes.length === 0 ? (
-          <div className="rounded-lg p-6 text-sm text-slate-400">
+          <div className="rounded-none p-6 text-sm text-fg-secondary">
             暂无节目数据。
           </div>
         ) : (

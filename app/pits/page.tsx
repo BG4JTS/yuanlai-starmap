@@ -12,11 +12,11 @@ const STATUS_CN: Record<PitStatus, string> = {
   sleeping: "沉睡",
 }
 const STATUS_COLOR: Record<PitStatus, string> = {
-  open: "bg-sky-500/15 text-sky-300",
-  claimed: "bg-amber-500/15 text-amber-300",
+  open: "bg-brand/15 text-brand-light",
+  claimed: "bg-brand-light/15 text-brand-light",
   filled: "bg-emerald-500/15 text-emerald-300",
   verified: "bg-purple-500/15 text-purple-300",
-  sleeping: "bg-slate-600/30 text-slate-400",
+  sleeping: "bg-surface-2/60 text-fg-secondary",
 }
 
 export default async function PitsPage({
@@ -29,17 +29,17 @@ export default async function PitsPage({
   const pits = await getPits({ status, limit: 100 }).catch(() => [])
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main className="min-h-screen bg-surface text-fg">
       <div className="mx-auto max-w-3xl px-6 py-8">
-        <nav className="mb-6 text-xs text-slate-500">
-          <Link href="/" className="hover:text-sky-400">
+        <nav className="mb-6 text-xs text-fg-secondary">
+          <Link href="/" className="hover:text-brand">
             ← 首页
           </Link>
         </nav>
 
         <header className="mb-6">
           <h1 className="text-2xl font-bold">坑看板</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-fg-secondary">
             节目中提到但没展开的话题 —— 你来填，或等主播做"填坑特辑"。
           </p>
           <div className="mt-3 flex gap-2 text-xs">
@@ -47,10 +47,10 @@ export default async function PitsPage({
               <Link
                 key={s}
                 href={`/pits?status=${s}`}
-                className={`rounded-full px-3 py-1 ${
+                className={`rounded-none px-3 py-1 ${
                   status === s
-                    ? "bg-sky-500 text-white"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? "bg-brand text-white"
+                    : "bg-surface-2 text-fg hover:bg-surface-2"
                 }`}
               >
                 {STATUS_CN[s]}
@@ -60,7 +60,7 @@ export default async function PitsPage({
         </header>
 
         {pits.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-fg-secondary">
             暂无{" "}{STATUS_CN[status]} 的坑。数据导入后这里会显示听众挖的坑。
           </p>
         ) : (
@@ -68,22 +68,22 @@ export default async function PitsPage({
             {pits.map((p) => (
               <li
                 key={p.id}
-                className="rounded-xl bg-slate-900 p-4 transition hover:bg-slate-800"
+                className="rounded-none bg-surface-2 p-4 transition hover:bg-surface-2"
               >
                 <div className="flex items-start justify-between gap-3">
                   <Link
                     href={`/episodes/${p.episode?.num ?? p.episode_id}`}
-                    className="font-medium hover:text-sky-400"
+                    className="font-medium hover:text-brand"
                   >
                     {p.content}
                   </Link>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${STATUS_COLOR[p.status]}`}
+                    className={`shrink-0 rounded-none px-2 py-0.5 text-[11px] ${STATUS_COLOR[p.status]}`}
                   >
                     {STATUS_CN[p.status]}
                   </span>
                 </div>
-                <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+                <div className="mt-2 flex items-center gap-3 text-xs text-fg-secondary">
                   {p.episode && (
                     <span>
                       出自 {p.episode.num ? `第${p.episode.num}期` : ""}《

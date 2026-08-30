@@ -23,29 +23,29 @@ export default async function Home() {
     n ? `${(n / 10000).toFixed(1)} 万` : "—"
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main className="min-h-screen bg-surface text-fg">
       <div className="mx-auto max-w-5xl px-6 py-10">
         <header className="mb-8">
           <h1 className="text-3xl font-bold">《原来是这样》节目星图</h1>
-          <p className="mt-2 text-slate-400">
+          <p className="mt-2 text-fg-secondary">
             673 期科普节目的内容地图 —— 从任何一期出发，顺着关联听下去。
           </p>
           <div className="mt-4 flex gap-3">
             <Link
               href="/map"
-              className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium hover:bg-sky-400"
+              className="rounded-none bg-brand px-4 py-2 text-sm font-medium hover:bg-brand-hover"
             >
               打开星图 →
             </Link>
             <Link
               href="/pits"
-              className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium hover:bg-slate-700"
+              className="rounded-none bg-surface-2 px-4 py-2 text-sm font-medium hover:bg-surface-2"
             >
               坑看板
             </Link>
             <Link
               href="/browse?tab=subject"
-              className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium hover:bg-slate-700"
+              className="rounded-none bg-surface-2 px-4 py-2 text-sm font-medium hover:bg-surface-2"
             >
               🔍 细化分类
             </Link>
@@ -53,7 +53,7 @@ export default async function Home() {
         </header>
 
         {err && (
-          <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-300">
+          <div className="mb-6 rounded-none border border-amber-500/40 bg-brand/10 p-4 text-sm text-brand-light">
             数据尚未就绪（{err}）。请先在 Supabase 执行 <code>supabase/schema.sql</code> 并导入数据。
           </div>
         )}
@@ -66,8 +66,8 @@ export default async function Home() {
               { k: "总字数", v: fmtWords(stats.total_words) },
               { k: "平均时长", v: `${fmtMin(stats.avg_duration_sec)} 分钟` },
             ].map((c) => (
-              <div key={c.k} className="rounded-xl bg-slate-900 p-4">
-                <div className="text-xs text-slate-400">{c.k}</div>
+              <div key={c.k} className="rounded-none bg-surface-2 p-4">
+                <div className="text-xs text-fg-secondary">{c.k}</div>
                 <div className="mt-1 text-xl font-semibold">{c.v}</div>
               </div>
             ))}
@@ -77,7 +77,7 @@ export default async function Home() {
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold">最近节目</h2>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-fg-secondary">
               共 {stats?.total_episodes ?? "…"} 期
             </span>
           </div>
@@ -86,14 +86,14 @@ export default async function Home() {
               <Link
                 key={e.id}
                 href={`/episodes/${e.num ?? e.id}`}
-                className="rounded-lg bg-slate-900 p-4 transition hover:bg-slate-800"
+                className="rounded-none bg-surface-2 p-4 transition hover:bg-surface-2"
               >
                 <div className="flex items-baseline justify-between">
                   <span className="font-medium">
                     {e.num ? `${e.num} · ` : ""}
                     {e.title}
                   </span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-fg-secondary">
                     {fmtMin(e.duration_sec)} 分钟
                   </span>
                 </div>
@@ -102,7 +102,7 @@ export default async function Home() {
                     {e.tags.slice(0, 4).map((t) => (
                       <span
                         key={t}
-                        className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-sky-300"
+                        className="rounded-none bg-surface-2 px-1.5 py-0.5 text-[11px] text-brand-light"
                       >
                         {t}
                       </span>

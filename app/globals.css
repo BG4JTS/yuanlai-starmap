@@ -1,26 +1,81 @@
+/* Fluent 2 设计令牌（CSS 变量） —— 强制 Metro 直角覆盖 */
 @import "tailwindcss";
 
+/* ===== Fluent 2 全局令牌（Global Tokens） ===== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-1: #0f6cbd;          /* Fluent 品牌蓝 */
+  --brand-2: #115ea3;          /* hover 深蓝 */
+  --brand-3: #0a5496;          /* pressed */
+  --brand-4: #53b1fd;          /* 浅蓝高亮 */
+  --neutral-0: #ffffff;
+  --neutral-1: #f5f5f5;        /* surface 浅 */
+  --neutral-2: #e5e5e5;        /* surface 中 */
+  --neutral-3: #d1d1d1;        /* 边框 */
+  --neutral-4: #525252;        /* 次级文字 */
+  --neutral-10: #1b1b1b;       /* 主文字 */
+  --stroke-default: #d1d1d1;
+  --stroke-subtle: #e5e5e5;
+  /* Fluent 间距令牌 */
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+  /* 圆角令牌 —— Metro 强制全部 0 */
+  --radius-none: 0px;
+  --radius-small: 0px;
+  --radius-medium: 0px;
+  --radius-large: 0px;
+  /* 阴影（Fluent 浅景深，2 级） */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.12);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.12);
+  --font-body: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 全局强制直角（Fluent 1 Metro 标志性语言） */
+* {
+  border-radius: 0px !important;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Tailwind 令牌映射（语义层 = Fluent 别名令牌） ===== */
+@theme inline {
+  --color-brand: var(--brand-1);
+  --color-brand-hover: var(--brand-2);
+  --color-brand-active: var(--brand-3);
+  --color-brand-light: var(--brand-4);
+  --color-surface: var(--neutral-1);
+  --color-surface-2: var(--neutral-2);
+  --color-stroke: var(--stroke-default);
+  --color-stroke-subtle: var(--stroke-subtle);
+  --color-fg: var(--neutral-10);
+  --color-fg-secondary: var(--neutral-4);
+  --font-body: var(--font-body);
+  --font-display: var(--font-display);
+  --shadow-f1: var(--shadow-1);
+  --shadow-f2: var(--shadow-2);
+}
+
+/* 深色模式（Fluent dark palette）——保留现有深色页面，令牌化对齐 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --neutral-0: #ffffff;
+    --neutral-1: #1b1b1b;
+    --neutral-2: #252525;
+    --neutral-3: #383838;
+    --neutral-4: #a0a0a0;
+    --neutral-10: #f5f5f5;
+    --stroke-default: #383838;
+    --stroke-subtle: #2d2d2d;
+    --brand-1: #53b1fd;
+    --brand-2: #4ba6f0;
+    --brand-3: #3f9ee9;
+  }
 }

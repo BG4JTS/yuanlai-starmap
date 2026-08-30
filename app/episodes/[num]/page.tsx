@@ -36,29 +36,29 @@ export default async function EpisodePage({
   const fmtWords = (n: number | null) => (n ? (n / 10000).toFixed(1) : "—")
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main className="min-h-screen bg-surface text-fg">
       <div className="mx-auto max-w-4xl px-6 py-8">
-        <nav className="mb-6 text-xs text-slate-500">
-          <Link href="/" className="hover:text-sky-400">
+        <nav className="mb-6 text-xs text-fg-secondary">
+          <Link href="/" className="hover:text-brand">
             ← 首页
           </Link>
           <span className="mx-2">/</span>
-          <Link href="/map" className="hover:text-sky-400">
+          <Link href="/map" className="hover:text-brand">
             星图
           </Link>
         </nav>
 
         <header className="mb-6">
           <div className="flex items-baseline gap-3">
-            {ep.num && <span className="text-2xl font-bold text-slate-500">{ep.num}</span>}
+            {ep.num && <span className="text-2xl font-bold text-fg-secondary">{ep.num}</span>}
             <h1 className="text-2xl font-bold">{ep.title}</h1>
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+          <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-fg-secondary">
             {ep.duration_sec && <span>{fmtMin(ep.duration_sec)} 分钟</span>}
             {ep.word_count && <span>{fmtWords(ep.word_count)} 万字</span>}
             {ep.publish_date && <span>{ep.publish_date}</span>}
             {ep.series && (
-              <Link href={`/map?focus=${ep.num ?? ""}`} className="text-sky-400 hover:underline">
+              <Link href={`/map?focus=${ep.num ?? ""}`} className="text-brand hover:underline">
                 系列：{ep.series.name}
               </Link>
             )}
@@ -69,7 +69,7 @@ export default async function EpisodePage({
                 <Link
                   key={t}
                   href={`/map?focus=${ep.num ?? ""}`}
-                  className="rounded bg-slate-800 px-2 py-0.5 text-xs text-sky-300 hover:bg-slate-700"
+                  className="rounded-none bg-surface-2 px-2 py-0.5 text-xs text-brand-light hover:bg-surface-2"
                 >
                   {t}
                 </Link>
@@ -78,9 +78,9 @@ export default async function EpisodePage({
           )}
           {ep.concepts && ep.concepts.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-slate-500">概念：</span>
+              <span className="text-xs text-fg-secondary">概念：</span>
               {ep.concepts.map((c) => (
-                <span key={c} className="rounded bg-slate-800/60 px-2 py-0.5 text-xs text-slate-300">
+                <span key={c} className="rounded-none bg-surface-2/60 px-2 py-0.5 text-xs text-fg">
                   {c}
                 </span>
               ))}
@@ -88,12 +88,12 @@ export default async function EpisodePage({
           )}
           {ep.guests && ep.guests.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-slate-500">嘉宾：</span>
+              <span className="text-xs text-fg-secondary">嘉宾：</span>
               {ep.guests.map((g) => (
                 <Link
                   key={g}
                   href={`/browse?tab=guest`}
-                  className="rounded bg-teal-500/15 px-2 py-0.5 text-xs text-teal-300 hover:bg-teal-500/30"
+                  className="rounded-none bg-brand/15 px-2 py-0.5 text-xs text-brand-light hover:bg-brand/30"
                 >
                   🎤 {g}
                 </Link>
@@ -102,12 +102,12 @@ export default async function EpisodePage({
           )}
           {ep.era && ep.era.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-slate-500">年代：</span>
+              <span className="text-xs text-fg-secondary">年代：</span>
               {ep.era.map((e) => (
                 <Link
                   key={e}
                   href={`/browse?tab=era`}
-                  className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-300 hover:bg-amber-500/30"
+                  className="rounded-none bg-brand-light/15 px-2 py-0.5 text-xs text-brand-light hover:bg-brand/30"
                 >
                   ⏳ {e}
                 </Link>
@@ -115,14 +115,14 @@ export default async function EpisodePage({
             </div>
           )}
           {ep.summary && (
-            <p className="mt-3 text-sm leading-relaxed text-slate-300">{ep.summary}</p>
+            <p className="mt-3 text-sm leading-relaxed text-fg">{ep.summary}</p>
           )}
           {ep.promised && ep.promised.length > 0 && (
-            <div className="mt-3 rounded-lg border border-orange-500/30 bg-orange-500/5 p-3">
-              <div className="text-xs text-orange-300">🕳️ 本期挖坑（主播预告后续细说）</div>
+            <div className="mt-3 rounded-none border border-stroke bg-brand/5 p-3">
+              <div className="text-xs text-brand-light">🕳️ 本期挖坑（主播预告后续细说）</div>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {ep.promised.map((p) => (
-                  <span key={p} className="rounded bg-orange-500/10 px-2 py-0.5 text-xs text-orange-200">
+                  <span key={p} className="rounded-none bg-brand/10 px-2 py-0.5 text-xs text-brand-light">
                     {p}
                   </span>
                 ))}
@@ -146,7 +146,7 @@ export default async function EpisodePage({
                   href={v}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sky-400 hover:underline"
+                  className="text-brand hover:underline"
                 >
                   {k === "ximalaya" ? "喜马拉雅" : k === "xiaoyuzhou" ? "小宇宙" : "Apple"} ↗
                 </a>
@@ -158,7 +158,7 @@ export default async function EpisodePage({
         <section className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">相关节目</h2>
           {related.length === 0 ? (
-            <p className="text-sm text-slate-500">暂无关联（数据导入后自动出现）。</p>
+            <p className="text-sm text-fg-secondary">暂无关联（数据导入后自动出现）。</p>
           ) : (
 <div className="grid gap-2 sm:grid-cols-2">
               {related.map((r: any, i: number) => {
@@ -169,19 +169,19 @@ export default async function EpisodePage({
                 <Link
                   key={i}
                   href={`/episodes/${ep.num ?? ep.id}`}
-                  className="rounded-lg bg-slate-900 p-3 transition hover:bg-slate-800"
+                  className="rounded-none bg-surface-2 p-3 transition hover:bg-surface-2"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium">
                       {ep.num ? `${ep.num} · ` : ""}
                       {ep.title}
                     </span>
-                    <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-300">
+                    <span className="rounded-none bg-surface-2 px-1.5 py-0.5 text-[11px] text-fg">
                       {KIND_CN[k]}
                     </span>
                   </div>
                   {ev && (
-                    <div className="mt-1 text-xs text-slate-500">因 {ev}</div>
+                    <div className="mt-1 text-xs text-fg-secondary">因 {ev}</div>
                   )}
                 </Link>
                 )
@@ -198,15 +198,15 @@ export default async function EpisodePage({
           {pits.length > 0 && (
             <ul className="mt-4 space-y-2">
               {pits.map((p) => (
-                <li key={p.id} className="rounded-lg bg-slate-900 p-3 text-sm">
+                <li key={p.id} className="rounded-none bg-surface-2 p-3 text-sm">
                   <div className="flex items-start justify-between gap-2">
                     <span>{p.content}</span>
-                    <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-400">
+                    <span className="shrink-0 rounded-none bg-surface-2 px-1.5 py-0.5 text-[11px] text-fg-secondary">
                       {p.status} · {p.echo_count} 共鸣
                     </span>
                   </div>
                   {p.ts_sec != null && (
-                    <div className="mt-1 text-xs text-slate-500">
+                    <div className="mt-1 text-xs text-fg-secondary">
                       时间戳 {Math.floor(p.ts_sec / 60)}:{String(p.ts_sec % 60).padStart(2, "0")}
                     </div>
                   )}
