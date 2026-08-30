@@ -13,6 +13,9 @@ const KIND_CN: Record<EdgeKind, string> = {
   tag: "共享标签",
   semantic: "语义相似",
   concept: "共享概念",
+  pit: "挖坑填坑",
+  guest: "同嘉宾",
+  era: "同年代",
 }
 
 export default async function EpisodePage({
