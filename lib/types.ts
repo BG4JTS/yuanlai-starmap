@@ -32,7 +32,15 @@ export type Episode = {
   series?: Series | null
 }
 
-export type EdgeKind = "series" | "ref" | "tag" | "semantic" | "concept"
+export type EdgeKind =
+  | "series"
+  | "ref"
+  | "tag"
+  | "semantic"
+  | "concept"
+  | "pit"
+  | "guest"
+  | "era"
 
 export type Edge = {
   ep_a: number
