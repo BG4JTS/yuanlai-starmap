@@ -16,6 +16,14 @@ TAGS = BASE / "analysis" / "tags.json"
 STARMAP = BASE / "analysis" / "starmap.json"
 
 
+def clean_title(m):
+    """去期号前缀 (title), title_raw 保留原始"""
+    t = m.get('title', '')
+    if m.get('num'):
+        return re.sub(r'^\d{1,3}[：:｜|]\s*', '', t).strip() or t
+    return t
+
+
 def ep_key(m):
     n = m.get("num")
     if n:
@@ -47,7 +55,7 @@ def build_episodes_rows(metas, tags_by_ep):
         xm_page = f"https://www.ximalaya.com/sound/{tid}" if tid else None
         rows.append({
             "num": m.get("num"),
-            "title": m.get("title", ""),
+            "title": clean_title(m),
             "title_raw": m.get("title", ""),
             "publish_date": None,
             "audio_url": None,
@@ -99,11 +107,22 @@ def import_episodes(url, key, rows):
     for r0 in extra_rows:
         t = r0.get("title", "")
         try:
+            # PATCH 按 title；return=representation 判断是否有匹配行
             pr = requests.patch(f"{url}/rest/v1/episodes?title=eq.{quote(t)}",
-                                headers=headers, json={"platforms": r0.get("platforms")}, timeout=60)
+                                headers={**headers, "Prefer": "return=representation"},
+                                json={k: v for k, v in r0.items() if k != "title"}, timeout=60)
             if pr.status_code >= 400:
                 patch_fail += 1
-                print(f"  番外 PATCH 失败: {t[:20]} {pr.status_code}")
+                print(f"  番外 PATCH 失败: {t[:20]} {pr.status_code} {pr.text[:100]}")
+            elif not pr.json():
+                # 无匹配行 → INSERT（干净表首装/清空后重导兼容）
+                ir = requests.post(f"{url}/rest/v1/episodes", headers=headers,
+                                   json=[r0], timeout=60)
+                if ir.status_code >= 400:
+                    patch_fail += 1
+                    print(f"  番外 INSERT 失败: {t[:20]} {ir.status_code} {ir.text[:120]}")
+                else:
+                    total += 1
             else:
                 total += 1
         except Exception:
