@@ -76,8 +76,58 @@ export default async function EpisodePage({
               ))}
             </div>
           )}
+          {ep.concepts && ep.concepts.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-slate-500">概念：</span>
+              {ep.concepts.map((c) => (
+                <span key={c} className="rounded bg-slate-800/60 px-2 py-0.5 text-xs text-slate-300">
+                  {c}
+                </span>
+              ))}
+            </div>
+          )}
+          {ep.guests && ep.guests.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-slate-500">嘉宾：</span>
+              {ep.guests.map((g) => (
+                <Link
+                  key={g}
+                  href={`/browse?tab=guest`}
+                  className="rounded bg-teal-500/15 px-2 py-0.5 text-xs text-teal-300 hover:bg-teal-500/30"
+                >
+                  🎤 {g}
+                </Link>
+              ))}
+            </div>
+          )}
+          {ep.era && ep.era.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-slate-500">年代：</span>
+              {ep.era.map((e) => (
+                <Link
+                  key={e}
+                  href={`/browse?tab=era`}
+                  className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-300 hover:bg-amber-500/30"
+                >
+                  ⏳ {e}
+                </Link>
+              ))}
+            </div>
+          )}
           {ep.summary && (
             <p className="mt-3 text-sm leading-relaxed text-slate-300">{ep.summary}</p>
+          )}
+          {ep.promised && ep.promised.length > 0 && (
+            <div className="mt-3 rounded-lg border border-orange-500/30 bg-orange-500/5 p-3">
+              <div className="text-xs text-orange-300">🕳️ 本期挖坑（主播预告后续细说）</div>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {ep.promised.map((p) => (
+                  <span key={p} className="rounded bg-orange-500/10 px-2 py-0.5 text-xs text-orange-200">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </header>
 

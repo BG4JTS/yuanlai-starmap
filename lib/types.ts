@@ -22,7 +22,10 @@ export type Episode = {
   summary: string | null
   tags: string[] | null
   concepts: string[] | null
-  referenced: number[] | null
+  referenced: string[] | null
+  guests: string[] | null
+  era: string[] | null
+  promised: string[] | null
   series_id: number | null
   created_at: string
   // 关联（联表查询注入）
