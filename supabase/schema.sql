@@ -31,7 +31,10 @@ create table if not exists public.episodes (
   summary       text,                            -- LLM 摘要
   tags          text[],                          -- 分层标签 ['植物/银杏',...]
   concepts      text[],                          -- 核心概念
-  referenced    int[],                           -- 引用的往期 id
+  referenced    text[],                          -- 提到的往期话题（短语; 结构化关联见 edges 表）
+  guests        text[],                          -- 嘉宾/科学顾问
+  era           text[],                          -- 涉及的历史时期/地质年代
+  promised      text[],                          -- 本期挖的坑（"以后细说"的话题）
   embedding     vector(1024),                    -- 摘要嵌入（pgvector）
   series_id     bigint references public.series(id),
   created_at    timestamptz not null default now(),

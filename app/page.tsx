@@ -43,6 +43,12 @@ export default async function Home() {
             >
               坑看板
             </Link>
+            <Link
+              href="/browse?tab=subject"
+              className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium hover:bg-slate-700"
+            >
+              🔍 细化分类
+            </Link>
           </div>
         </header>
 
